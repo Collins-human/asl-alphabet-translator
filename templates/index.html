@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>ASL Alphabet Translator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ffffff;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.dark {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        body.dark header {
+            background-color: #e67e22;
+        }
+
+        body.dark .tips {
+            background: #1e1e1e;
+            color: #ddd;
+        }
+
+        /* Header */
+        header {
+            background-color: #f28c38;
+            color: white;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        header h1 {
+            font-size: 2.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.15rem;
+            opacity: 0.95;
+        }
+
+        /* Main container */
+        .container {
+            flex: 1;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            text-align: center;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        button.orange-btn {
+            background-color: #f28c38;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        button.orange-btn:hover {
+            background-color: #e67e22;
+            transform: translateY(-2px);
+        }
+
+        button.orange-btn:active {
+            transform: translateY(0);
+        }
+
+        .slider-container {
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        input[type="range"] {
+            width: 200px;
+            accent-color: #f28c38;
+        }
+
+        /* Video wrapper */
+        .video-wrapper {
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            margin: 1.5rem auto;
+            max-width: 900px;
+            position: relative;
+        }
+
+        .video-wrapper img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Alphabet Guide */
+        .alphabet-guide {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .letter-box {
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        body.dark .letter-box {
+            background: #2c2c2c;
+            border-color: #555;
+            color: #fff;
+        }
+
+        .letter-box:hover {
+            transform: scale(1.1);
+            border-color: #f28c38;
+        }
+
+        /* Instructions & Tips */
+        .instructions {
+            margin: 2rem 0;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #444;
+        }
+
+        .tips {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-left: 5px solid #f28c38;
+        }
+
+        body.dark .tips {
+            background: #1e1e1e;
+            color: #ddd;
+            border-left-color: #f28c38;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #1a1a1a;
+            color: #bbb;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: auto;
+            font-size: 0.95rem;
+        }
+
+        footer a {
+            color: #f28c38;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Modal for sign image */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        body.dark .modal-content {
+            background-color: #1e1e1e;
+            color: #fff;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .modal-close:hover {
+            color: #f28c38;
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.8rem; }
+            .controls { flex-direction: column; }
+            .video-wrapper { max-width: 100%; }
+            .modal-content { max-width: 90%; padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Orange Header -->
+    <header>
+        <h1>ASL Alphabet Translator</h1>
+        <p>Real-time American Sign Language recognition using your webcam</p>
+    </header>
+
+    <!-- Main content -->
+    <div class="container">
+        <!-- Controls -->
+        <div class="controls">
+            <button class="orange-btn" id="startBtn"><i class="fas fa-play"></i> Start Camera</button>
+            <button class="orange-btn" id="stopBtn" disabled><i class="fas fa-stop"></i> Stop Camera</button>
+            <button class="orange-btn" id="fullscreenBtn"><i class="fas fa-expand"></i> Full Screen</button>
+            <button class="orange-btn" id="darkModeBtn"><i class="fas fa-moon"></i> Dark Mode</button>
+        </div>
+
+        <!-- Confidence threshold -->
+        <div class="slider-container">
+            <label for="confidence">Min Confidence: <span id="confValue">70</span>%</label>
+            <input type="range" id="confidence" min="0" max="100" value="70" />
+        </div>
+
+        <!-- Video feed -->
+        <div class="video-wrapper">
+            <img id="videoFeed" src="" alt="Live ASL Recognition">
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <p>Hold your hand clearly in the center of the camera. Good lighting helps!</p>
+        </div>
+
+        <!-- Tips box -->
+        <div class="tips">
+            <strong>Tips for best results:</strong><br>
+            • Use natural daylight or bright indoor lighting<br>
+            • Keep your hand steady and well-framed<br>
+            • Avoid very fast movements<br>
+            • Try different distances from the camera
+        </div>
+
+        <!-- Alphabet Guide -->
+        <h3>Alphabet Guide (Tap a letter to see sign)</h3>
+        <div class="alphabet-guide">
+            <div class="letter-box" data-letter="A">A</div>
+            <div class="letter-box" data-letter="B">B</div>
+            <div class="letter-box" data-letter="C">C</div>
+            <div class="letter-box" data-letter="D">D</div>
+            <div class="letter-box" data-letter="E">E</div>
+            <div class="letter-box" data-letter="F">F</div>
+            <div class="letter-box" data-letter="G">G</div>
+            <div class="letter-box" data-letter="H">H</div>
+            <div class="letter-box" data-letter="I">I</div>
+            <div class="letter-box" data-letter="J">J</div>
+            <div class="letter-box" data-letter="K">K</div>
+            <div class="letter-box" data-letter="L">L</div>
+            <div class="letter-box" data-letter="M">M</div>
+            <div class="letter-box" data-letter="N">N</div>
+            <div class="letter-box" data-letter="O">O</div>
+            <div class="letter-box" data-letter="P">P</div>
+            <div class="letter-box" data-letter="Q">Q</div>
+            <div class="letter-box" data-letter="R">R</div>
+            <div class="letter-box" data-letter="S">S</div>
+            <div class="letter-box" data-letter="T">T</div>
+            <div class="letter-box" data-letter="U">U</div>
+            <div class="letter-box" data-letter="V">V</div>
+            <div class="letter-box" data-letter="W">W</div>
+            <div class="letter-box" data-letter="X">X</div>
+            <div class="letter-box" data-letter="Y">Y</div>
+            <div class="letter-box" data-letter="Z">Z</div>
+        </div>
+    </div>
+
+    <!-- Black Footer -->
+    <footer>
+        <p>Developed by Collins Tumuheki & Nakitende Christine<br>
+           Kabale University – Bachelor of Science in Computer Science<br>
+           © 2026 – Real-Time Sign Language Translator Project</p>
+    </footer>
+
+    <!-- Modal for sign image -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2 id="modal-letter"></h2>
+            <img id="modal-image" src="" alt="ASL Sign">
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        const videoFeed = document.getElementById('videoFeed');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const darkModeBtn = document.getElementById('darkModeBtn');
+        const confidenceSlider = document.getElementById('confidence');
+        const confValue = document.getElementById('confValue');
+
+        const modal = document.getElementById('modal');
+        const modalLetter = document.getElementById('modal-letter');
+        const modalImage = document.getElementById('modal-image');
+        const modalClose = document.getElementsByClassName('modal-close')[0];
+
+        let lastLetter = '';
+        let speechSupported = 'speechSynthesis' in window;
+
+        // Confidence slider
+        confidenceSlider.addEventListener('input', () => {
+            confValue.textContent = confidenceSlider.value;
+        });
+
+        // Start camera
+        startBtn.addEventListener('click', () => {
+            videoFeed.src = '/video_feed';
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+        });
+
+        // Stop camera
+        stopBtn.addEventListener('click', () => {
+            videoFeed.src = '';
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        });
+
+        // Fullscreen
+        fullscreenBtn.addEventListener('click', () => {
+            const videoWrapper = document.querySelector('.video-wrapper');
+            if (videoWrapper.requestFullscreen) {
+                videoWrapper.requestFullscreen();
+            }
+        });
+
+        // Dark mode
+        darkModeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            darkModeBtn.innerHTML = document.body.classList.contains('dark')
+                ? '<i class="fas fa-sun"></i> Light Mode'
+                : '<i class="fas fa-moon"></i> Dark Mode';
+        });
+
+        // Speech function
+        function speak(text) {
+            if (speechSupported) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.1;
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Modal for letter signs
+        document.querySelectorAll('.letter-box').forEach(box => {
+            box.addEventListener('click', () => {
+                const letter = box.dataset.letter;
+                modalLetter.textContent = `ASL Sign for ${letter}`;
+                modalImage.src = `/static/asl_images/${letter}.jpg`;  // assumes uppercase; adjust if lowercase
+                modal.style.display = 'flex';
+                speak(`Sign for letter ${letter}`);
+            });
+        });
+
+        modalClose.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        });
+
+        // Placeholder for prediction changes (server-side handles, but you can add client-side logic if needed)
+        setInterval(() => {
+            // For sound feedback, this could be enhanced with WebSockets for real-time updates
+        }, 1000);
+    </script>
+</body>
+</html>
